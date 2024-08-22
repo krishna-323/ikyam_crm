@@ -281,9 +281,9 @@ class _LoginPageState extends State<LoginPage> {
                                        /// BTP Login api call function.
                                        //_btpHandleLogin();
                                        ///Firebase Authentication login Function call.
-                                       //_firebaseHandleLogin();
+                                       _firebaseHandleLogin();
                                        ///Aws Login.
-                                       _awsHandleLogin();
+                                       //_awsHandleLogin();
                                        // if(mounted) {
                                        //   // Navigator.pushReplacementNamed(context, "/home");
                                        //    // Navigator.pushReplacementNamed(context, "/customerList");
@@ -401,7 +401,8 @@ class _LoginPageState extends State<LoginPage> {
     );
 
     if(response.statusCode == 200){
-
+    print('--------response---------');
+    print(response.body);
       Map tempData = {};
 
       return json.decode(response.body)['d']['results'];
