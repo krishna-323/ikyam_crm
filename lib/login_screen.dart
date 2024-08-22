@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:html';
 import 'dart:js_interop';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
@@ -8,6 +9,8 @@ import 'package:ikyam_crm/utils/static_files/static_colors.dart';
 import 'package:ikyam_crm/widgets/input_decoration_text_field.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+
+import 'class/routes.dart';
 
 
 
@@ -19,8 +22,13 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-
-  final userName = TextEditingController();
+  @override
+  void initState() {
+    // TODO: implement initState.
+    getEquipmentData();
+    super.initState();
+  }
+  final emailController = TextEditingController();
   final password = TextEditingController();
 
   bool passWordHindBool=true;
@@ -30,9 +38,10 @@ class _LoginPageState extends State<LoginPage> {
       passWordHindBool = !passWordHindBool;
     });
   }
+
   ///BTP HandleLogin
-  void _handleLogin(){
-    final username = userName.text.trim();
+  void _btpHandleLogin(){
+    final username = emailController.text.trim();
     final pass = password.text.trim();
     if(username.isNotEmpty && pass.isNotEmpty){
       fetchBusinessPartnerDetails();
@@ -49,7 +58,7 @@ class _LoginPageState extends State<LoginPage> {
 
     SharedPreferences prefs = await SharedPreferences.getInstance();
 
-    String basicAuth = 'Basic ${base64Encode(utf8.encode('${userName.text}:${password.text}'))}';
+    String basicAuth = 'Basic ${base64Encode(utf8.encode('${emailController.text}:${password.text}'))}';
 
     final response =await http.get(Uri.parse(url),
     headers: {
@@ -90,6 +99,83 @@ class _LoginPageState extends State<LoginPage> {
           ),
         );
       },);
+  }
+
+  ///Aws Login.
+  Future<void> _awsHandleLogin() async {
+    final username = emailController.text.trim();
+    final pass = password.text.trim();
+
+    if(username.isNotEmpty && pass.isNotEmpty){
+      log("Logging in with username: $username and password: $pass");
+      await checkLogin(username,pass);
+    }else{
+      showErrorDialog("Please Enter User Name And Password.");
+
+      //ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Please Enter Valid User Id and Password")));
+      log("Username and Password are required");
+    }
+    // Navigator.pushAndRemoveUntil(context, PageRouteBuilder(pageBuilder: (context, animation, secondaryAnimation) => const HomeScreen(), settings: const RouteSettings(name: "/")), (route) => false,);
+  }
+  checkLogin(String username, String password) async {
+    SharedPreferences prefsData = await SharedPreferences.getInstance();
+
+    Map tempJson ={
+      "username": username,
+      "password": password
+    };
+
+    String url ='https://snvvlfyg7f.execute-api.ap-south-1.amazonaws.com/stage1/api/user_master/login-authenticate';
+    final response = await http.post(Uri.parse(url),
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: json.encode(tempJson)
+    );
+    if(response.statusCode ==200){
+      Map tempData = {};
+
+      try{
+        tempData =json.decode(response.body);
+        if(tempData['status']==403){
+          showErrorDialog("Invalid Credential: Error Code ${tempData['status']}.");
+        }
+        else{
+          if(mounted){
+            //Login Through Firebase Authentication also.
+            final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+                email: username,
+                password: password,
+            );
+            if(credential.user!=null){
+              if(mounted){
+                Navigator.pushReplacementNamed(context, CustomerRotes.homeRoute);
+                //Navigator.pushReplacementNamed(context, "/customerList");
+              }
+            }
+
+          }
+          if(tempData.containsKey("token")){
+            if(tempData['role'].toString() == "Manager"){
+              prefsData.setString("role", tempData['role'].toString());
+              prefsData.setString("userid", tempData['userid'].toString());
+            }
+            else{
+              prefsData.setString("role", tempData['role'].toString());
+              prefsData.setString("userid", tempData['userid'].toString());
+            }
+          }
+        }
+      }
+      catch(e) {
+        print('-----Exception----');
+        print(e);
+        if(mounted){
+          ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text("Login Exception $e")));
+        }
+      }
+
+    }
   }
 
   @override
@@ -145,7 +231,7 @@ class _LoginPageState extends State<LoginPage> {
                                   onChanged: (value) {
 
                                 },
-                                  controller: userName,
+                                  controller: emailController,
                                   style: const TextStyle(fontSize: 12),
                                   decoration: decorationInput3("User Name"),
                                 ),
@@ -189,12 +275,15 @@ class _LoginPageState extends State<LoginPage> {
                                    borderRadius: BorderRadius.all(Radius.circular(10)),
                                    color: Color(0xff00004d),
                                  ),
-                                 child: TextButton(
+                                 child:
+                                 TextButton(
                                      onPressed: () async {
                                        /// BTP Login api call function.
-                                       //_handleLogin();
+                                       //_btpHandleLogin();
                                        ///Firebase Authentication login Function call.
-                                       _handleLogin1();
+                                       //_firebaseHandleLogin();
+                                       ///Aws Login.
+                                       _awsHandleLogin();
                                        // if(mounted) {
                                        //   // Navigator.pushReplacementNamed(context, "/home");
                                        //    // Navigator.pushReplacementNamed(context, "/customerList");
@@ -240,8 +329,8 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   /// Firebase Handle-login.
-  void _handleLogin1(){
-    final username = userName.text.trim();
+  void _firebaseHandleLogin(){
+    final username = emailController.text.trim();
     final pass = password.text.trim();
     if(username.isNotEmpty && pass.isNotEmpty){
       checkCredentials();
@@ -255,7 +344,7 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> checkCredentials() async {
     try {
       final credential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-          email: userName.text,
+          email: emailController.text,
           password: password.text
       );
 
@@ -285,5 +374,47 @@ class _LoginPageState extends State<LoginPage> {
       }
     }
   }
+  Future getEquipmentData() async{
+
+    String username = 'kirank';
+
+    String password = 'Indiaocean@23456';
+
+    String basicAuth = 'Basic ${base64Encode(utf8.encode('$username:$password'))}';
+
+    String url = "http://192.168.4.45:8000/sap/opu/odata/sap/ztest_api_srv/CompanyCodeSet?\$format=json";
+
+    //String url = "https://89af40yvgi.execute-api.ap-south-1.amazonaws.com/stage1/api/sap_uae/YY1_EQUIPMENT_TRACKER_CDS/YY1_Equipment_Tracker";
+
+    final response = await http.get(
+
+      headers: {
+
+        "Content-Type": "application/json",
+
+        'authorization': basicAuth
+
+      },
+
+      Uri.parse(url),
+
+    );
+
+    if(response.statusCode == 200){
+
+      Map tempData = {};
+
+      return json.decode(response.body)['d']['results'];
+
+    }else{
+
+      log("Response Status Code: ${response.statusCode}");
+
+      return null;
+
+    }
+
+  }
 
 }
+
