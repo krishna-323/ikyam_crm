@@ -830,3 +830,414 @@ List states = [
   'Uttar Pradesh',
   'West Bengal',
 ];
+
+List partsList = [
+  {
+    "Name": "Washington 4C4",
+    "Collection": "Loose Furniture",
+    "Type": "STATIONARY SOFAS",
+    "Price": "₹980,000"
+  },
+  {
+    "Name": "Edison",
+    "Collection": "Loose Furniture",
+    "Type": "STATIONARY SOFAS",
+    "Price": "₹890,000"
+  },
+  {
+    "Name": "Grand Derby",
+    "Collection": "Loose Furniture",
+    "Type": "STATIONARY SOFAS",
+    "Price": "₹660,000"
+  },
+  {
+    "Name": "Discovery",
+    "Collection": "Loose Furniture",
+    "Type": "STATIONARY SOFAS",
+    "Price": "₹970,000"
+  },
+  {
+    "Name": "Morgan",
+    "Collection": "Loose Furniture",
+    "Type": "STATIONARY SOFAS",
+    "Price": "₹800,000"
+  },
+  {
+    "Name": "Jade Sofa",
+    "Collection": "Loose Furniture",
+    "Type": "STATIONARY SOFAS",
+    "Price": "₹750,000"
+  },
+  {
+    "Name": "Oasis",
+    "Collection": "Loose Furniture",
+    "Type": "STATIONARY SOFAS",
+    "Price": "₹710,000"
+  },
+  {
+    "Name": "Dreamliner",
+    "Collection": "Loose Furniture",
+    "Type": "STATIONARY SOFAS",
+    "Price": "₹920,000"
+  },
+  {
+    "Name": "Nica Daybed",
+    "Collection": "Loose Furniture",
+    "Type": "STATIONARY SOFAS",
+    "Price": "₹930,000"
+  },
+  {
+    "Name": "Startrek",
+    "Collection": "Loose Furniture",
+    "Type": "STATIONARY SOFAS",
+    "Price": "₹770,000"
+  },
+  {
+    "Name": "Valentino",
+    "Collection": "Loose Furniture",
+    "Type": "Motion Sofas",
+    "Price": "₹600,000"
+  },
+  {
+    "Name": "Contrail",
+    "Collection": "Loose Furniture",
+    "Type": "Motion Sofas",
+    "Price": "₹890,000"
+  },
+  {
+    "Name": "Stratus",
+    "Collection": "Loose Furniture",
+    "Type": "Motion Sofas",
+    "Price": "₹840,000"
+  },
+  {
+    "Name": "Evita",
+    "Collection": "Loose Furniture",
+    "Type": "Motion Sofas",
+    "Price": "₹550,000"
+  },
+  {
+    "Name": "Eva",
+    "Collection": "Loose Furniture",
+    "Type": "Motion Sofas",
+    "Price": "₹820,000"
+  },
+  {
+    "Name": "Castro",
+    "Collection": "Loose Furniture",
+    "Type": "Motion Sofas",
+    "Price": "₹720,000"
+  },
+  {
+    "Name": "Nuvola",
+    "Collection": "Loose Furniture",
+    "Type": "Motion Sofas",
+    "Price": "₹950,000"
+  },
+  {
+    "Name": "Eva 3 Seater Daybed",
+    "Collection": "Loose Furniture",
+    "Type": "Motion Sofas",
+    "Price": "₹870,000"
+  },
+  {
+    "Name": "Cirrus",
+    "Collection": "Loose Furniture",
+    "Type": "Motion Sofas",
+    "Price": "₹960,000"
+  },
+  {
+    "Name": "Eva U-Corner",
+    "Collection": "Loose Furniture",
+    "Type": "Motion Sofas",
+    "Price": "₹610,000"
+  },
+  {
+    "Name": "Nimbus Home Theatre",
+    "Collection": "Loose Furniture",
+    "Type": "Home Theater",
+    "Price": "₹730,000"
+  },
+  {
+    "Name": "Cirrus Curve",
+    "Collection": "Loose Furniture",
+    "Type": "Home Theater",
+    "Price": "₹940,000"
+  },
+  {
+    "Name": "Cirrus Straight",
+    "Collection": "Loose Furniture",
+    "Type": "Home Theater",
+    "Price": "₹820,000"
+  },
+  {
+    "Name": "Bellagio ",
+    "Collection": "Loose Furniture",
+    "Type": "Sofa Cum Bed",
+    "Price": "₹830,000"
+  },
+  {
+    "Name": "Conarad",
+    "Collection": "Loose Furniture",
+    "Type": "Sofa Cum Bed",
+    "Price": "₹630,000"
+  },
+  {
+    "Name": "Hilton",
+    "Collection": "Loose Furniture",
+    "Type": "Sofa Cum Bed",
+    "Price": "₹670,000"
+  },
+  {
+    "Name": "Jade",
+    "Collection": "Loose Furniture",
+    "Type": "ArmChair & Puffee",
+    "Price": "₹720,000"
+  },
+  {
+    "Name": "Joy",
+    "Collection": "Loose Furniture",
+    "Type": "ArmChair & Puffee",
+    "Price": "₹980,000"
+  },
+  {
+    "Name": "Pecard",
+    "Collection": "Loose Furniture",
+    "Type": "ArmChair & Puffee",
+    "Price": "₹890,000"
+  },
+  {
+    "Name": "Candy Store",
+    "Collection": "Loose Furniture",
+    "Type": "ArmChair & Puffee",
+    "Price": "₹680,000"
+  },
+  {
+    "Name": "Enigma",
+    "Collection": "Loose Furniture",
+    "Type": "ArmChair & Puffee",
+    "Price": "₹700,000"
+  },
+  {
+    "Name": "Princeton ",
+    "Collection": "Loose Furniture",
+    "Type": "ArmChair & Puffee",
+    "Price": "₹560,000"
+  },
+  {
+    "Name": "Teddy",
+    "Collection": "Loose Furniture",
+    "Type": "ArmChair & Puffee",
+    "Price": "₹610,000"
+  },
+  {
+    "Name": "Yale",
+    "Collection": "Loose Furniture",
+    "Type": "ArmChair & Puffee",
+    "Price": "₹900,000"
+  },
+  {
+    "Name": "Jade Senior",
+    "Collection": "Loose Furniture",
+    "Type": "ArmChair & Puffee",
+    "Price": "₹780,000"
+  },
+  {
+    "Name": "Cocoon",
+    "Collection": "Loose Furniture",
+    "Type": "ArmChair & Puffee",
+    "Price": "₹820,000"
+  },
+  {
+    "Name": "L Shape Kitchen",
+    "Collection": "Fixed Furniture",
+    "Type": "Kitchens",
+    "Price": "₹970,000"
+  },
+  {
+    "Name": "U Shape Kitchen",
+    "Collection": "Fixed Furniture",
+    "Type": "Kitchens",
+    "Price": "₹780,000"
+  },
+  {
+    "Name": "Parallel Kitchen",
+    "Collection": "Fixed Furniture",
+    "Type": "Kitchens",
+    "Price": "₹870,000"
+  },
+  {
+    "Name": "Island Kitchen",
+    "Collection": "Fixed Furniture",
+    "Type": "Kitchens",
+    "Price": "₹940,000"
+  },
+  {
+    "Name": "Straight Line Kitchen",
+    "Collection": "Fixed Furniture",
+    "Type": "Kitchens",
+    "Price": "₹870,000"
+  },
+  {
+    "Name": "Sliding Wardrobe",
+    "Collection": "Fixed Furniture",
+    "Type": "Wardrobes",
+    "Price": "₹920,000"
+  },
+  {
+    "Name": "Hinged Wardrobe",
+    "Collection": "Fixed Furniture",
+    "Type": "Wardrobes",
+    "Price": "₹880,000"
+  },
+  {
+    "Name": "Vanity Unit",
+    "Collection": "Fixed Furniture",
+    "Type": "Living,Dinning and Orher Units",
+    "Price": "₹960,000"
+  },
+  {
+    "Name": "Laundry Unit",
+    "Collection": "Fixed Furniture",
+    "Type": "Living,Dinning and Orher Units",
+    "Price": "₹750,000"
+  },
+  {
+    "Name": "Pooja Unit",
+    "Collection": "Fixed Furniture",
+    "Type": "Living,Dinning and Orher Units",
+    "Price": "₹930,000"
+  },
+  {
+    "Name": "Crockery Unit",
+    "Collection": "Fixed Furniture",
+    "Type": "Living,Dinning and Orher Units",
+    "Price": "₹700,000"
+  },
+  {
+    "Name": "Dresser",
+    "Collection": "Fixed Furniture",
+    "Type": "Living,Dinning and Orher Units",
+    "Price": "₹840,000"
+  },
+  {
+    "Name": "Shoe Unit",
+    "Collection": "Fixed Furniture",
+    "Type": "Living,Dinning and Orher Units",
+    "Price": "₹670,000"
+  },
+  {
+    "Name": "Newcastle",
+    "Collection": "Home ccessories",
+    "Type": "Center Table",
+    "Price": "₹990,000"
+  },
+  {
+    "Name": "Lotus Buds",
+    "Collection": "Home ccessories",
+    "Type": "Center Table",
+    "Price": "₹830,000"
+  },
+  {
+    "Name": "Pretty Pumpkin",
+    "Collection": "Home ccessories",
+    "Type": "Center Table",
+    "Price": "₹990,000"
+  },
+  {
+    "Name": "Merry Go Round",
+    "Collection": "Home ccessories",
+    "Type": "Center Table",
+    "Price": "₹830,000"
+  },
+  {
+    "Name": "Over Hang",
+    "Collection": "Home ccessories",
+    "Type": "Center Table",
+    "Price": "₹980,001"
+  },
+  {
+    "Name": "Sure Footed",
+    "Collection": "Home ccessories",
+    "Type": "Center Table",
+    "Price": "₹890,001"
+  },
+  {
+    "Name": "Meeting Point",
+    "Collection": "Home ccessories",
+    "Type": "Center Table",
+    "Price": "₹660,001"
+  },
+  {
+    "Name": "Fleet Foot",
+    "Collection": "Home ccessories",
+    "Type": "Center Table",
+    "Price": "₹970,001"
+  },
+  {
+    "Name": "Casaviva CT",
+    "Collection": "Home ccessories",
+    "Type": "Center Table",
+    "Price": "₹800,001"
+  },
+  {
+    "Name": "Rubik Cube",
+    "Collection": "Home ccessories",
+    "Type": "Center Table",
+    "Price": "₹750,001"
+  },
+  {
+    "Name": "Snow Flakes",
+    "Collection": "Home ccessories",
+    "Type": "Cushions",
+    "Price": "₹710,001"
+  },
+  {
+    "Name": "Fine Gentlemen",
+    "Collection": "Home ccessories",
+    "Type": "Cushions",
+    "Price": "₹920,001"
+  },
+  {
+    "Name": "Straight Forward",
+    "Collection": "Home ccessories",
+    "Type": "Cushions",
+    "Price": "₹930,001"
+  },
+  {
+    "Name": "Post Bag",
+    "Collection": "Home ccessories",
+    "Type": "Cushions",
+    "Price": "₹770,001"
+  },
+  {
+    "Name": "Prism Rush",
+    "Collection": "Home ccessories",
+    "Type": "Cushions",
+    "Price": "₹600,001"
+  },
+  {
+    "Name": "Barn Rarks",
+    "Collection": "Home ccessories",
+    "Type": "Cushions",
+    "Price": "₹890,001"
+  },
+  {
+    "Name": "Desert Rose",
+    "Collection": "Home ccessories",
+    "Type": "Cushions",
+    "Price": "₹840,001"
+  },
+  {
+    "Name": "Forest Flame",
+    "Collection": "Home ccessories",
+    "Type": "Cushions",
+    "Price": "₹550,001"
+  },
+  {
+    "Name": "Deep Roots",
+    "Collection": "Home ccessories",
+    "Type": "Cushions",
+    "Price": "₹820,001"
+  }
+];

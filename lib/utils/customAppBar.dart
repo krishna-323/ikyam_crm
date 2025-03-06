@@ -1,7 +1,11 @@
 
+import 'dart:convert';
+import 'dart:developer';
+import 'package:http/http.dart' as http;
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:ikyam_crm/utils/static_files/static_colors.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../widgets/custom_popup_dropdown/custom_popup_dropdown.dart';
 
@@ -31,19 +35,19 @@ class _CustomAppBarState extends State<CustomAppBar> {
     }
   }
 
-  // SharedPreferences? prefs ;
-  String companyName='';
-  // Future getInitialData() async{
-  //   prefs = await SharedPreferences.getInstance();
-  //   setState(() {
-  //     companyName = prefs!.getString("companyName") ?? "";
-  //   });
-  // }
+  //
+  String userid='';
+  Future getInitialData() async{
+    SharedPreferences  prefs = await SharedPreferences.getInstance();
+    setState(() {
+      userid = prefs.getString("userid") ?? "";
+    });
+  }
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-    //getInitialData();
+    getInitialData();
   }
   dynamic size,width,height;
   final search=TextEditingController();
@@ -107,6 +111,28 @@ class _CustomAppBarState extends State<CustomAppBar> {
   Color logNoTextColor = Colors.black;
 
   String customerType='Select Customer Type';
+
+  ///Logout API.
+  Future  getCustomerFromAws(String userid) async {
+    String url = "https://snvvlfyg7f.execute-api.ap-south-1.amazonaws.com/stage1/api/user_master/logout-success/$userid";
+    final resData = await http.get(Uri.parse(url));
+    final responseBody= jsonDecode(resData.body);
+    try {
+      print('--responseBody--');
+      print(responseBody);
+
+      if(responseBody['data']=="Logout Successful"){
+       if(mounted){
+         Navigator.pushReplacementNamed(context, "/");
+       }
+      }
+
+    } catch (e) {
+      // Handle errors here
+      log("Error fetching customers: ${e.toString()}");
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     size = MediaQuery.of(context).size;
@@ -204,7 +230,7 @@ class _CustomAppBarState extends State<CustomAppBar> {
                     ],
                   ),
                   const SizedBox(width: 20,),
-
+                  Container(color: Colors.white,),
                   TooltipTheme(
                     data: const TooltipThemeData(
                       textStyle: TextStyle(
@@ -306,7 +332,8 @@ class _CustomAppBarState extends State<CustomAppBar> {
                             },
 
                             onSelected: (String value)async{
-                              Navigator.pushReplacementNamed(context, "/");
+                              getCustomerFromAws(userid);
+
                             },
                             onCanceled: () {
 

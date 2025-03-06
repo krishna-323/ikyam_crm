@@ -1,10 +1,11 @@
+import 'dart:convert';
 import 'dart:developer';
-import 'dart:js_interop';
+import 'package:http/http.dart' as http;
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:excel/excel.dart' as xl;
+// import 'package:excel/excel.dart' as xl;
 import 'package:adaptive_scrollbar/adaptive_scrollbar.dart';
 import 'package:email_validator/email_validator.dart';
-import 'package:file_picker/file_picker.dart';
+// import 'package:file_picker/file_picker.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
@@ -27,29 +28,7 @@ class UserList extends StatefulWidget {
 
 class _UserListState extends State<UserList> {
   final CollectionReference _users = FirebaseFirestore.instance.collection("users");
-  /// This Function is Login with existing user account.
-  Future<void> checkCredentials(String email,String password) async {
-    try {
-      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      // If sign-in is successful, delete the user account
-      await userCredential.user!.delete();
 
-
-    } on FirebaseAuthException catch (e) {
-      String errorMessage = "An error occurred. Please try again";
-      if (e.code == 'user-not-found') {
-        errorMessage = "Please enter valid Email";
-        print('No user found for that email.');
-      } else if (e.code == 'wrong-password') {
-        errorMessage = "Wrong password. Try again or click Forgot password to reset it";
-        print('Wrong password provided for that user.');
-      }
-      showErrorDialog(errorMessage);
-    }
-  }
 
   // Show DialogBox.
   void showErrorDialog(String errorMessage) {
@@ -261,6 +240,8 @@ class _UserListState extends State<UserList> {
       "pincode": ""
     }
   ];
+
+  //List usersStaticData=[];
   List filteredList =[];
   List displayList=[];
   int startVal=0;
@@ -269,7 +250,7 @@ class _UserListState extends State<UserList> {
   @override
   void initState() {
     // TODO: implement initState.
-   filteredList= usersStaticData;
+   filteredList = usersStaticData;
 
     if(displayList.isEmpty){
       if(filteredList.length>15){
@@ -289,17 +270,6 @@ class _UserListState extends State<UserList> {
     super.initState();
   }
 
-
-   deleteUserData(int removeMap){
-    print('--index---');
-    print(removeMap);
-    setState(() {
-      for(int i=0;i<displayList.length;i++){
-        displayList.removeAt(displayList[i][removeMap]);
-      }
-      Navigator.of(context).pop();
-    });
-  }
 
 
  // Filtered Business PartnerName.
@@ -449,7 +419,7 @@ class _UserListState extends State<UserList> {
 
   Widget tableStructure(BuildContext context,double screenWidth,){
     return Container(
-      height: MediaQuery.of(context).size.height,
+     height: MediaQuery.of(context).size.height,
       color: Colors.grey[50],
       child: SingleChildScrollView(
         child: Padding(
@@ -462,7 +432,8 @@ class _UserListState extends State<UserList> {
                 borderRadius: BorderRadius.circular(10),
                 border: Border.all(color: const Color(0xFFE0E0E0),)
             ),
-            child: Column(children: [
+            child: Column(
+                children: [
 
               // Table Header With Names.
               Container(
@@ -677,541 +648,560 @@ class _UserListState extends State<UserList> {
                     ],
                   )
               ),
-              ///static user.
-              //           ListView.builder(
-        //     shrinkWrap: true,
-        //     itemCount: displayList.length + 1, // +1 for the pagination row
-        //     itemBuilder: (BuildContext context, int index) {
-        //     if (index < displayList.length) {
-        //       return Column(
-        //         children: [
-        //           AnimatedContainer(
-        //             height: displayList[index]['isExpanded']?91:36,
-        //             duration:const Duration(milliseconds: 500),
-        //             child: MaterialButton(
-        //               hoverColor: Colors.blue[50],
-        //               onPressed: () {
-        //                setState(() {
-        //                  if(expandedId==""){
-        //                    setState(() {
-        //                      expandedId=displayList[index]['id'].toString();
-        //                      displayList[index]['isExpanded']=true;
-        //                    });
-        //                  }
-        //                  else if(expandedId==displayList[index]["id"].toString()){
-        //                    setState(() {
-        //                      displayList[index]['isExpanded']=false;
-        //                      expandedId="";
-        //                    });
-        //                  }
-        //                  else if(expandedId.isNotEmpty || expandedId!=""){
-        //                    setState(() {
-        //                      for(var val in displayList){
-        //                        if(val["id"].toString()==expandedId){
-        //                          setState(() {
-        //                            val['isExpanded']=false;
-        //                            expandedId=displayList[index]['id'].toString();
-        //                            displayList[index]['isExpanded']=true;
-        //                          });
-        //                        }
-        //                      }
-        //                    });
-        //                  }
-        //                });
-        //
-        //               },
-        //               child: Padding(
-        //                 padding: const EdgeInsets.only(left: 18.0, top: 4, bottom: 3),
-        //                 child: Row(
-        //                   children: [
-        //                     Expanded(
-        //                       child: Column(
-        //                         children: [
-        //                           Row(
-        //                             children: [
-        //                               Expanded(
-        //                                 child: Padding(
-        //                                   padding: const EdgeInsets.only(top: 4.0),
-        //                                   child: SizedBox(
-        //                                     height: 25,
-        //                                     child: Text(displayList[index]['name'] ?? ""),
-        //                                   ),
-        //                                 ),
-        //                               ),
-        //                               Expanded(
-        //                                 child: Padding(
-        //                                   padding: const EdgeInsets.only(top: 4),
-        //                                   child: SizedBox(
-        //                                     height: 25,
-        //                                     child: Tooltip(
-        //                                       message: displayList[index]['email'] ?? '',
-        //                                       waitDuration: const Duration(seconds: 1),
-        //                                       child: Text(displayList[index]['email'] ?? '', softWrap: true),
-        //                                     ),
-        //                                   ),
-        //                                 ),
-        //                               ),
-        //                               Expanded(
-        //                                 child: Padding(
-        //                                   padding: const EdgeInsets.only(top: 4),
-        //                                   child: SizedBox(
-        //                                     height: 25,
-        //                                     child: Text(displayList[index]['phone'] ?? ""),
-        //                                   ),
-        //                                 ),
-        //                               ),
-        //                               Expanded(
-        //                                 child: Padding(
-        //                                   padding: const EdgeInsets.only(top: 4),
-        //                                   child: SizedBox(
-        //                                     height: 25,
-        //                                     child: Text(displayList[index]['address'] ?? ""),
-        //                                   ),
-        //                                 ),
-        //                               ),
-        //                               const Center(
-        //                                 child: Padding(
-        //                                   padding: EdgeInsets.only(right: 8),
-        //                                   child: Icon(
-        //                                     size: 18,
-        //                                     Icons.arrow_circle_right,
-        //                                     color: Colors.blue,
-        //                                   ),
-        //                                 ),
-        //                               )
-        //                             ],
-        //                           ),
-        //                           displayList[index]["isExpanded"]?
-        //                           FutureBuilder (
-        //                               future: _show(),
-        //                               builder: (context,snapchat) {
-        //                                 if(!snapchat.hasData){
-        //                                   return const SizedBox();
-        //                                 }
-        //                                 return Column(
-        //                                   children: [
-        //                                     const SizedBox(height: 8,),
-        //                                     Row(mainAxisAlignment: MainAxisAlignment.center,
-        //                                       children: [
-        //                                         SizedBox(
-        //                                           height: 28,
-        //                                           width:80,
-        //                                           child: OutlinedBorderWithIcon(
-        //                                             buttonText: 'Edit',
-        //                                             iconData: Icons.edit,
-        //                                             onTap: (){
-        //                                               editScreenPopUp(context,displayList[index]);
-        //                                           },),
-        //                                         ),
-        //                                         const SizedBox(width: 20,),
-        //                                         SizedBox(   height: 28,
-        //                                           width:100,
-        //                                           child: OutlinedBorderColorForDelete(
-        //                                             buttonText: 'Delete',
-        //                                             iconData: Icons.delete,
-        //                                              onTap: (){
-        //                                               print('----id ------runtype---');
-        //                                               print(displayList[index]['id'].runtimeType);
-        //
-        //                                                 deletePopUp(context,displayList[index]['id']);
-        //                                              },),
-        //                                         ),
-        //                                         const SizedBox(width: 20,),
-        //                                         SizedBox(  height: 28,
-        //                                           width:160,
-        //                                           child: OutlinedBorderWithIcon(
-        //                                             buttonText: 'Change Password',
-        //                                             iconData: Icons.change_circle_sharp,
-        //                                              onTap: (){
-        //
-        //                                              },),
-        //                                         ),
-        //                                       ],
-        //                                     ),
-        //                                     const SizedBox(height: 8,),
-        //                                   ],
-        //                                 );
-        //
-        //                               }
-        //                           ):const SizedBox(),
-        //                         ],
-        //                       ),
-        //                     ),
-        //                   ],
-        //                 ),
-        //               ),
-        //             ),
-        //           ),
-        //           Divider(height: 0.5, color: Colors.grey[300], thickness: 0.5),
-        //         ],
-        //       );
-        //     } else {
-        //       // Pagination row
-        //       return Column(
-        //         children: [
-        //           Divider(height: 0.5, color: Colors.grey[300], thickness: 0.5),
-        //           Row(
-        //             mainAxisAlignment: MainAxisAlignment.end,
-        //             children: [
-        //               Text("${startVal+15>filteredList.length?filteredList.length:startVal+1}-${startVal+15>filteredList.length?filteredList.length:startVal+15} of ${filteredList.length}",style: const TextStyle(color: Colors.grey)),
-        //               const SizedBox(width: 10),
-        //               Material(
-        //                 color: Colors.transparent,
-        //                 child: InkWell(
-        //                   hoverColor: mHoverColor,
-        //                   child: const Padding(
-        //                     padding: EdgeInsets.all(18.0),
-        //                     child: Icon(Icons.arrow_back_ios_sharp, size: 12),
-        //                   ),
-        //                   onTap: () {
-        //                     if (startVal > 14) {
-        //                       displayList.clear();
-        //                       startVal = startVal - 15;
-        //                       for (int i = startVal; i < startVal + 15; i++) {
-        //                         try {
-        //                           setState(() {
-        //                             displayList.add(filteredList[i]);
-        //                           });
-        //                         } catch (e) {
-        //                           log(e.toString());
-        //                         }
-        //                       }
-        //                     } else {
-        //                       log('else');
-        //                     }
-        //                   },
-        //                 ),
-        //               ),
-        //               const SizedBox(width: 10),
-        //               Material(
-        //                 color: Colors.transparent,
-        //                 child: InkWell(
-        //                   hoverColor: mHoverColor,
-        //                   child: const Padding(
-        //                     padding: EdgeInsets.all(18.0),
-        //                     child: Icon(Icons.arrow_forward_ios, size: 12),
-        //                   ),
-        //                   onTap: () {
-        //                     if (filteredList.length > startVal + 15) {
-        //                       displayList.clear();
-        //                       startVal = startVal + 15;
-        //                       for (int i = startVal; i < startVal + 15; i++) {
-        //                         try {
-        //                           setState(() {
-        //                             filteredList[i]['isExpanded']=false;
-        //                             displayList.add(filteredList[i]);
-        //                             expandedId="";
-        //                           });
-        //                         } catch (e) {
-        //                           log(e.toString());
-        //                         }
-        //                       }
-        //                     }
-        //                     setState(() {});
-        //                   },
-        //                 ),
-        //               ),
-        //               const SizedBox(width: 20),
-        //             ],
-        //           ),
-        //         ],
-        //       );
-        //     }
-        //   },
-        // ),
-              ///firestore database
-              StreamBuilder(
-                stream: _users.snapshots(),
-                builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
-                  if(snapshot.hasData){
-                    return SizedBox(
-                      height: MediaQuery.of(context).size.height,
-                      child: ListView.builder(
-                        itemCount: snapshot.data!.docs.length,
-                        itemBuilder: (context, index) {
-                          final DocumentSnapshot documentSnapshot = snapshot.data!.docs[index];
-                          return Column(
-                            children: [
+              ///static users With Dynamic Expansion.
+                              ListView.builder(
+            shrinkWrap: true,
+            itemCount: displayList.length + 1, // +1 for the pagination row
+            itemBuilder: (BuildContext context, int index) {
+            if (index < displayList.length) {
+              return Column(
+                children: [
+                  AnimatedContainer(
+                    height: displayList[index]['isExpanded']?91:36,
+                    duration:const Duration(milliseconds: 500),
+                    child: MaterialButton(
+                      hoverColor: Colors.blue[50],
+                      onPressed: () {
+                       setState(() {
+                         if(expandedId==""){
+                           setState(() {
+                             expandedId=displayList[index]['id'].toString();
+                             displayList[index]['isExpanded']=true;
+                           });
+                         }
+                         else if(expandedId==displayList[index]["id"].toString()){
+                           setState(() {
+                             displayList[index]['isExpanded']=false;
+                             expandedId="";
+                           });
+                         }
+                         else if(expandedId.isNotEmpty || expandedId!=""){
+                           setState(() {
+                             for(var val in displayList){
+                               if(val["id"].toString()==expandedId){
+                                 setState(() {
+                                   val['isExpanded']=false;
+                                   expandedId=displayList[index]['id'].toString();
+                                   displayList[index]['isExpanded']=true;
+                                 });
+                               }
+                             }
+                           });
+                         }
+                       });
 
-                              ///Animated Expander.
-                              // AnimatedContainer(
-                              //   height: displayList[index]['isExpanded']?91:36,
-                              //   duration:const Duration(milliseconds: 500),
-                              //   child: MaterialButton(
-                              //     hoverColor: Colors.blue[50],
-                              //     onPressed: () {
-                              //       setState(() {
-                              //         if(expandedId==""){
-                              //           setState(() {
-                              //             expandedId=displayList[index]['id'].toString();
-                              //             displayList[index]['isExpanded']=true;
-                              //           });
-                              //         }
-                              //         else if(expandedId==displayList[index]["id"].toString()){
-                              //           setState(() {
-                              //             displayList[index]['isExpanded']=false;
-                              //             expandedId="";
-                              //           });
-                              //         }
-                              //         else if(expandedId.isNotEmpty || expandedId!=""){
-                              //           setState(() {
-                              //             for(var val in displayList){
-                              //               if(val["id"].toString()==expandedId){
-                              //                 setState(() {
-                              //                   val['isExpanded']=false;
-                              //                   expandedId=displayList[index]['id'].toString();
-                              //                   displayList[index]['isExpanded']=true;
-                              //                 });
-                              //               }
-                              //             }
-                              //           });
-                              //         }
-                              //       });
-                              //
-                              //     },
-                              //     child: Padding(
-                              //       padding: const EdgeInsets.only(left: 18.0, top: 4, bottom: 3),
-                              //       child: Row(
-                              //         children: [
-                              //           Expanded(
-                              //             child: Column(
-                              //               children: [
-                              //                 Row(
-                              //                   children: [
-                              //                     Expanded(
-                              //                       child: Padding(
-                              //                         padding: const EdgeInsets.only(top: 4.0),
-                              //                         child: SizedBox(
-                              //                           height: 25,
-                              //                           child: Text(documentSnapshot['userName']),
-                              //                         ),
-                              //                       ),
-                              //                     ),
-                              //                     Expanded(
-                              //                       child: Padding(
-                              //                         padding: const EdgeInsets.only(top: 4),
-                              //                         child: SizedBox(
-                              //                           height: 25,
-                              //                           child: Tooltip(
-                              //                             message: documentSnapshot['email'],
-                              //                             waitDuration: const Duration(seconds: 1),
-                              //                             child: Text(documentSnapshot['email'], softWrap: true),
-                              //                           ),
-                              //                         ),
-                              //                       ),
-                              //                     ),
-                              //                     Expanded(
-                              //                       child: Padding(
-                              //                         padding: const EdgeInsets.only(top: 4),
-                              //                         child: SizedBox(
-                              //                           height: 25,
-                              //                           child: Text(documentSnapshot['phone']??""),
-                              //                         ),
-                              //                       ),
-                              //                     ),
-                              //                     Expanded(
-                              //                       child: Padding(
-                              //                         padding: const EdgeInsets.only(top: 4),
-                              //                         child: SizedBox(
-                              //                           height: 25,
-                              //                           child: Text(documentSnapshot['role']??""),
-                              //                         ),
-                              //                       ),
-                              //                     ),
-                              //                     const Center(
-                              //                       child: Padding(
-                              //                         padding: EdgeInsets.only(right: 8),
-                              //                         child: Icon(
-                              //                           size: 18,
-                              //                           Icons.arrow_circle_right,
-                              //                           color: Colors.blue,
-                              //                         ),
-                              //                       ),
-                              //                     )
-                              //                   ],
-                              //                 ),
-                              //                 displayList[index]["isExpanded"]?
-                              //                 FutureBuilder (
-                              //                     future: _show(),
-                              //                     builder: (context,snapchat) {
-                              //                       if(!snapchat.hasData){
-                              //                         return const SizedBox();
-                              //                       }
-                              //                       return Column(
-                              //                         children: [
-                              //                           const SizedBox(height: 8,),
-                              //                           Row(mainAxisAlignment: MainAxisAlignment.center,
-                              //                             children: [
-                              //                               SizedBox(
-                              //                                 height: 28,
-                              //                                 width:80,
-                              //                                 child: OutlinedBorderWithIcon(
-                              //                                   buttonText: 'Edit',
-                              //                                   iconData: Icons.edit,
-                              //                                   onTap: (){
-                              //
-                              //                                     editScreenPopUp(context,documentSnapshot);
-                              //                                   },),
-                              //                               ),
-                              //                               const SizedBox(width: 20,),
-                              //                               SizedBox(   height: 28,
-                              //                                 width:100,
-                              //                                 child: OutlinedBorderColorForDelete(
-                              //                                   buttonText: 'Delete',
-                              //                                   iconData: Icons.delete,
-                              //                                   onTap: (){
-                              //                                     deletePopUp(context,displayList[index]['id']);
-                              //                                   },),
-                              //                               ),
-                              //                               const SizedBox(width: 20,),
-                              //                               SizedBox(  height: 28,
-                              //                                 width:160,
-                              //                                 child: OutlinedBorderWithIcon(
-                              //                                   buttonText: 'Change Password',
-                              //                                   iconData: Icons.change_circle_sharp,
-                              //                                   onTap: (){
-                              //
-                              //                                   },),
-                              //                               ),
-                              //                             ],
-                              //                           ),
-                              //                           const SizedBox(height: 8,),
-                              //                         ],
-                              //                       );
-                              //
-                              //                     }
-                              //                 ):const SizedBox(),
-                              //               ],
-                              //             ),
-                              //           ),
-                              //         ],
-                              //       ),
-                              //     ),
-                              //   ),
-                              // ),
-                              ///Button Expander.
-                              AnimatedContainer(
-                                height: 36,
-                                duration:const Duration(milliseconds: 0),
-                                child: MaterialButton(
-                                  hoverColor: Colors.blue[50],
-                                  onPressed: () {  },
-                                  child: Padding(
-                                    padding: const EdgeInsets.only(left: 18.0),
-                                    child: Row(
-                                      children: [
-                                        Expanded(
-                                          child: Column(
-                                            children: [
-                                              Row(
-                                                children: [
-                                                  Expanded(
-                                                    child: Padding(
-                                                      padding: const EdgeInsets.only(left:10,top: 4.0),
-                                                      child: SizedBox(
-                                                        height: 25,
-                                                        child: Text(documentSnapshot['userName']),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    child: Padding(
-                                                      padding: const EdgeInsets.only(left:10,top: 4),
-                                                      child: SizedBox(
-                                                        height: 25,
-                                                        child: Tooltip(
-                                                          message: documentSnapshot['email'],
-                                                          waitDuration: const Duration(seconds: 1),
-                                                          child: Text(documentSnapshot['email'], softWrap: true),
-                                                        ),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    child: Padding(
-                                                      padding: const EdgeInsets.only(left:10,top: 4),
-                                                      child: SizedBox(
-                                                        height: 25,
-                                                        child: Text(documentSnapshot['phone']??""),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                  Expanded(
-                                                    child: Padding(
-                                                      padding: const EdgeInsets.only(left:10,top: 4),
-                                                      child: SizedBox(
-                                                        height: 25,
-                                                        child: Text(documentSnapshot['role']??""),
-                                                      ),
-                                                    ),
-                                                  ),
-                                                ],
-                                              ),
-                                            ],
+                      },
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 18.0, top: 4, bottom: 3),
+                        child: Row(
+                          children: [
+                            Expanded(
+                              child: Column(
+                                children: [
+                                  Row(
+                                    children: [
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(top: 4.0),
+                                          child: SizedBox(
+                                            height: 25,
+                                            child: Text(displayList[index]['name'] ?? ""),
                                           ),
                                         ),
-                                        SizedBox(
-                                          width: 25,
-                                          height: 25,
-                                          child: LayoutBuilder(
-                                            builder: (BuildContext context, BoxConstraints constraints) {
-                                              return CustomPopupMenuButton(
-                                                decoration: iconDecoration(),
-                                                elevation: 4,
-                                                itemBuilder: (context) {
-                                                  return moreDropdown;
-                                                },
-                                                hintText: '',
-                                                childWidth: 150,
-                                                offset: const Offset(1, 40),
-                                                tooltip: '',
-                                                onSelected: (value) {
-
-                                                  setState(() {
-                                                    if(value == "Edit"){
-                                                      editScreenPopUp(context,documentSnapshot);
-                                                    }
-                                                    if(value=="Delete"){
-                                                      deletePopUp(context,displayList[index]['id']);
-                                                    }
-                                                    if (value=="Change Password"){
-                                                      print('----change password---');
-                                                      //changePasswordDialog(context, index);
-                                                    }
-                                                  });
-                                                },
-                                                child: Container(),
-                                              );
-                                            },
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(top: 4),
+                                          child: SizedBox(
+                                            height: 25,
+                                            child: Tooltip(
+                                              message: displayList[index]['email'] ?? '',
+                                              waitDuration: const Duration(seconds: 1),
+                                              child: Text(displayList[index]['email'] ?? '', softWrap: true),
+                                            ),
                                           ),
-                                        )
-                                      ],
-                                    ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(top: 4),
+                                          child: SizedBox(
+                                            height: 25,
+                                            child: Text(displayList[index]['phone'] ?? ""),
+                                          ),
+                                        ),
+                                      ),
+                                      Expanded(
+                                        child: Padding(
+                                          padding: const EdgeInsets.only(top: 4),
+                                          child: SizedBox(
+                                            height: 25,
+                                            child: Text(displayList[index]['address'] ?? ""),
+                                          ),
+                                        ),
+                                      ),
+                                      const Center(
+                                        child: Padding(
+                                          padding: EdgeInsets.only(right: 8),
+                                          child: Icon(
+                                            size: 18,
+                                            Icons.arrow_circle_right,
+                                            color: Colors.blue,
+                                          ),
+                                        ),
+                                      )
+                                    ],
                                   ),
-                                ),
+                                  displayList[index]["isExpanded"]?
+                                  FutureBuilder (
+                                      future: _show(),
+                                      builder: (context,snapchat) {
+                                        if(!snapchat.hasData){
+                                          return const SizedBox();
+                                        }
+                                        return Column(
+                                          children: [
+                                            const SizedBox(height: 8,),
+                                            Row(mainAxisAlignment: MainAxisAlignment.center,
+                                              children: [
+                                                SizedBox(
+                                                  height: 28,
+                                                  width:80,
+                                                  child: OutlinedBorderWithIcon(
+                                                    buttonText: 'Edit',
+                                                    iconData: Icons.edit,
+                                                    onTap: (){
+                                                      editScreenPopUp(context,displayList[index]);
+                                                  },),
+                                                ),
+                                                const SizedBox(width: 20,),
+                                                SizedBox(   height: 28,
+                                                  width:100,
+                                                  child: OutlinedBorderColorForDelete(
+                                                    buttonText: 'Delete',
+                                                    iconData: Icons.delete,
+                                                     onTap: (){
+                                                      print('----id ------runtype---');
+                                                      print(displayList[index]['id'].runtimeType);
+
+                                                        deletePopUp(context,displayList[index]['id']);
+                                                     },),
+                                                ),
+                                                const SizedBox(width: 20,),
+                                                SizedBox(  height: 28,
+                                                  width:160,
+                                                  child: OutlinedBorderWithIcon(
+                                                    buttonText: 'Change Password',
+                                                    iconData: Icons.change_circle_sharp,
+                                                     onTap: (){
+
+                                                     },),
+                                                ),
+                                              ],
+                                            ),
+                                            const SizedBox(height: 8,),
+                                          ],
+                                        );
+
+                                      }
+                                  ):const SizedBox(),
+                                ],
                               ),
-                              Divider(height: 0.5, color: Colors.grey[300], thickness: 0.5),
-                            ],
-                          );
+                            ),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                  Divider(height: 0.5, color: Colors.grey[300], thickness: 0.5),
+                ],
+              );
+            } else {
+              // Pagination row
+              return Column(
+                children: [
+                  Divider(height: 0.5, color: Colors.grey[300], thickness: 0.5),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      Text("${startVal+15>filteredList.length?filteredList.length:startVal+1}-${startVal+15>filteredList.length?filteredList.length:startVal+15} of ${filteredList.length}",style: const TextStyle(color: Colors.grey)),
+                      const SizedBox(width: 10),
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          hoverColor: mHoverColor,
+                          child: const Padding(
+                            padding: EdgeInsets.all(18.0),
+                            child: Icon(Icons.arrow_back_ios_sharp, size: 12),
+                          ),
+                          onTap: () {
+                            if (startVal > 14) {
+                              displayList.clear();
+                              startVal = startVal - 15;
+                              for (int i = startVal; i < startVal + 15; i++) {
+                                try {
+                                  setState(() {
+                                    displayList.add(filteredList[i]);
+                                  });
+                                } catch (e) {
+                                  log(e.toString());
+                                }
+                              }
+                            } else {
+                              log('else');
+                            }
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 10),
+                      Material(
+                        color: Colors.transparent,
+                        child: InkWell(
+                          hoverColor: mHoverColor,
+                          child: const Padding(
+                            padding: EdgeInsets.all(18.0),
+                            child: Icon(Icons.arrow_forward_ios, size: 12),
+                          ),
+                          onTap: () {
+                            if (filteredList.length > startVal + 15) {
+                              displayList.clear();
+                              startVal = startVal + 15;
+                              for (int i = startVal; i < startVal + 15; i++) {
+                                try {
+                                  setState(() {
+                                    filteredList[i]['isExpanded']=false;
+                                    displayList.add(filteredList[i]);
+                                    expandedId="";
+                                  });
+                                } catch (e) {
+                                  log(e.toString());
+                                }
+                              }
+                            }
+                            setState(() {});
+                          },
+                        ),
+                      ),
+                      const SizedBox(width: 20),
+                    ],
+                  ),
+                ],
+              );
+            }
+          },
+        ),
 
-                        },),
-                    );
-                  }
-                  else{
-
-                  }
-                  return const Center(
-                    child: Text("Loading....."),
-                  );
-                },
-              ),
-          ]),
+              ///firestore database.
+              // StreamBuilder(
+              //   stream: _users.snapshots(),
+              //   builder: (BuildContext context, AsyncSnapshot<QuerySnapshot> snapshot) {
+              //
+              //     if(snapshot.hasData){
+              //       return ListView.builder(
+              //         shrinkWrap: true,
+              //         ///This IS For Animated Container.
+              //        // itemCount: displayList.length + 1,
+              //         itemCount: snapshot.data!.docs.length + 1,
+              //         itemBuilder: (context, index) {
+              //           // for(int i=0;i<snapshot.data!.docs.length;i++){
+              //           //   print('-----i---');
+              //           //   print(i);
+              //           // }
+              //
+              //           if(index< snapshot.data!.docs.length){
+              //
+              //             final DocumentSnapshot documentSnapshot = snapshot.data!.docs[index];
+              //               return Column(
+              //                 children: [
+              //                   const SizedBox(height: 5,),
+              //                   ///Button Expander.
+              //                   AnimatedContainer(
+              //                     height: 36,
+              //                     duration:const Duration(milliseconds: 0),
+              //                     child: MaterialButton(
+              //                       hoverColor: Colors.blue[50],
+              //                       onPressed: () {  },
+              //                       child: Padding(
+              //                         padding: const EdgeInsets.only(left: 18.0),
+              //                         child: Row(
+              //                           children: [
+              //                             Expanded(
+              //                               child: Column(
+              //                                 children: [
+              //                                   Row(
+              //                                     children: [
+              //                                       Expanded(
+              //                                         child: Padding(
+              //                                           padding: const EdgeInsets.only(left:10,top: 4.0),
+              //                                           child: SizedBox(
+              //                                             height: 25,
+              //                                             child: Text(documentSnapshot['userName']),
+              //                                           ),
+              //                                         ),
+              //                                       ),
+              //                                       Expanded(
+              //                                         child: Padding(
+              //                                           padding: const EdgeInsets.only(left:10,top: 4),
+              //                                           child: SizedBox(
+              //                                             height: 25,
+              //                                             child: Tooltip(
+              //                                               message: documentSnapshot['email'],
+              //                                               waitDuration: const Duration(seconds: 1),
+              //                                               child: Text(documentSnapshot['email'], softWrap: true),
+              //                                             ),
+              //                                           ),
+              //                                         ),
+              //                                       ),
+              //                                       Expanded(
+              //                                         child: Padding(
+              //                                           padding: const EdgeInsets.only(left:10,top: 4),
+              //                                           child: SizedBox(
+              //                                             height: 25,
+              //                                             child: Text(documentSnapshot['phone']??""),
+              //                                           ),
+              //                                         ),
+              //                                       ),
+              //                                       Expanded(
+              //                                         child: Padding(
+              //                                           padding: const EdgeInsets.only(left:10,top: 4),
+              //                                           child: SizedBox(
+              //                                             height: 25,
+              //                                             child: Text(documentSnapshot['role']??""),
+              //                                           ),
+              //                                         ),
+              //                                       ),
+              //                                     ],
+              //                                   ),
+              //                                 ],
+              //                               ),
+              //                             ),
+              //                             SizedBox(
+              //                               width: 25,
+              //                               height: 25,
+              //                               child: LayoutBuilder(
+              //                                 builder: (BuildContext context, BoxConstraints constraints) {
+              //                                   return CustomPopupMenuButton(
+              //                                     decoration: iconDecoration(),
+              //                                     elevation: 4,
+              //                                     itemBuilder: (context) {
+              //                                       return moreDropdown;
+              //                                     },
+              //                                     hintText: '',
+              //                                     childWidth: 150,
+              //                                     offset: const Offset(1, 40),
+              //                                     tooltip: '',
+              //                                     onSelected: (value) {
+              //
+              //                                       setState(() {
+              //                                         if(value == "Edit"){
+              //                                           editScreenPopUp(context,documentSnapshot);
+              //                                         }
+              //                                         if(value=="Delete"){
+              //                                           deletePopUp(context,documentSnapshot);
+              //                                         }
+              //                                         if (value=="Change Password"){
+              //                                           print('----change password---');
+              //                                           //changePasswordDialog(context, index);
+              //                                         }
+              //                                       });
+              //                                     },
+              //                                     child: Container(),
+              //                                   );
+              //                                 },
+              //                               ),
+              //                             )
+              //                           ],
+              //                         ),
+              //                       ),
+              //                     ),
+              //                   ),
+              //                   Divider(height: 0.5, color: Colors.grey[300], thickness: 0.5),
+              //                 ],
+              //               );
+              //          }
+              //          else{
+              //
+              //           }
+              //           ///Animated Container.
+              //             // if(index < 1){
+              //             //   return Column(
+              //             //     children: [
+              //             //       const SizedBox(height: 5,),
+              //             //       ///Animated Expander.
+              //             //       AnimatedContainer(
+              //             //         height: displayList[index]['isExpanded']?91:36,
+              //             //         duration:const Duration(milliseconds: 500),
+              //             //         child: MaterialButton(
+              //             //           hoverColor: Colors.blue[50],
+              //             //           onPressed: () {
+              //             //             setState(() {
+              //             //               if(expandedId==""){
+              //             //                 setState(() {
+              //             //                   expandedId=displayList[index]['id'].toString();
+              //             //                   displayList[index]['isExpanded']=true;
+              //             //                 });
+              //             //               }
+              //             //               else if(expandedId==displayList[index]["id"].toString()){
+              //             //                 setState(() {
+              //             //                   displayList[index]['isExpanded']=false;
+              //             //                   expandedId="";
+              //             //                 });
+              //             //               }
+              //             //               else if(expandedId.isNotEmpty || expandedId!=""){
+              //             //                 setState(() {
+              //             //                   for(var val in displayList){
+              //             //                     if(val["id"].toString()==expandedId){
+              //             //                       setState(() {
+              //             //                         val['isExpanded']=false;
+              //             //                         expandedId=displayList[index]['id'].toString();
+              //             //                         displayList[index]['isExpanded']=true;
+              //             //                       });
+              //             //                     }
+              //             //                   }
+              //             //                 });
+              //             //               }
+              //             //             });
+              //             //
+              //             //           },
+              //             //           child: Padding(
+              //             //             padding: const EdgeInsets.only(left: 18.0, top: 4, bottom: 3),
+              //             //             child: Row(
+              //             //               children: [
+              //             //                 Expanded(
+              //             //                   child: Column(
+              //             //                     children: [
+              //             //                       Row(
+              //             //                         children: [
+              //             //                           Expanded(
+              //             //                             child: Padding(
+              //             //                               padding: const EdgeInsets.only(top: 4.0),
+              //             //                               child: SizedBox(
+              //             //                                 height: 25,
+              //             //                                 child: Text(documentSnapshot['userName']),
+              //             //                               ),
+              //             //                             ),
+              //             //                           ),
+              //             //                           Expanded(
+              //             //                             child: Padding(
+              //             //                               padding: const EdgeInsets.only(top: 4),
+              //             //                               child: SizedBox(
+              //             //                                 height: 25,
+              //             //                                 child: Tooltip(
+              //             //                                   message: documentSnapshot['email'],
+              //             //                                   waitDuration: const Duration(seconds: 1),
+              //             //                                   child: Text(documentSnapshot['email'], softWrap: true),
+              //             //                                 ),
+              //             //                               ),
+              //             //                             ),
+              //             //                           ),
+              //             //                           Expanded(
+              //             //                             child: Padding(
+              //             //                               padding: const EdgeInsets.only(top: 4),
+              //             //                               child: SizedBox(
+              //             //                                 height: 25,
+              //             //                                 child: Text(documentSnapshot['phone']??""),
+              //             //                               ),
+              //             //                             ),
+              //             //                           ),
+              //             //                           Expanded(
+              //             //                             child: Padding(
+              //             //                               padding: const EdgeInsets.only(top: 4),
+              //             //                               child: SizedBox(
+              //             //                                 height: 25,
+              //             //                                 child: Text(documentSnapshot['role']??""),
+              //             //                               ),
+              //             //                             ),
+              //             //                           ),
+              //             //                           const Center(
+              //             //                             child: Padding(
+              //             //                               padding: EdgeInsets.only(right: 8),
+              //             //                               child: Icon(
+              //             //                                 size: 18,
+              //             //                                 Icons.arrow_circle_right,
+              //             //                                 color: Colors.blue,
+              //             //                               ),
+              //             //                             ),
+              //             //                           )
+              //             //                         ],
+              //             //                       ),
+              //             //                       displayList[index]["isExpanded"]?
+              //             //                       FutureBuilder (
+              //             //                           future: _show(),
+              //             //                           builder: (context,snapchat) {
+              //             //                             if(!snapchat.hasData){
+              //             //                               return const SizedBox();
+              //             //                             }
+              //             //                             return Column(
+              //             //                               children: [
+              //             //                                 const SizedBox(height: 8,),
+              //             //                                 Row(mainAxisAlignment: MainAxisAlignment.center,
+              //             //                                   children: [
+              //             //                                     SizedBox(
+              //             //                                       height: 28,
+              //             //                                       width:80,
+              //             //                                       child: OutlinedBorderWithIcon(
+              //             //                                         buttonText: 'Edit',
+              //             //                                         iconData: Icons.edit,
+              //             //                                         onTap: (){
+              //             //
+              //             //                                           editScreenPopUp(context,documentSnapshot);
+              //             //                                         },),
+              //             //                                     ),
+              //             //                                     const SizedBox(width: 20,),
+              //             //                                     SizedBox(   height: 28,
+              //             //                                       width:100,
+              //             //                                       child: OutlinedBorderColorForDelete(
+              //             //                                         buttonText: 'Delete',
+              //             //                                         iconData: Icons.delete,
+              //             //                                         onTap: (){
+              //             //                                           deletePopUp(context,displayList[index]['id']);
+              //             //                                         },),
+              //             //                                     ),
+              //             //                                     const SizedBox(width: 20,),
+              //             //                                     SizedBox(  height: 28,
+              //             //                                       width:160,
+              //             //                                       child: OutlinedBorderWithIcon(
+              //             //                                         buttonText: 'Change Password',
+              //             //                                         iconData: Icons.change_circle_sharp,
+              //             //                                         onTap: (){
+              //             //
+              //             //                                         },),
+              //             //                                     ),
+              //             //                                   ],
+              //             //                                 ),
+              //             //                                 const SizedBox(height: 8,),
+              //             //                               ],
+              //             //                             );
+              //             //
+              //             //                           }
+              //             //                       ):const SizedBox(),
+              //             //                     ],
+              //             //                   ),
+              //             //                 ),
+              //             //               ],
+              //             //             ),
+              //             //           ),
+              //             //         ),
+              //             //       ),
+              //             //     ],
+              //             //   );
+              //             // }
+              //
+              //         },);
+              //     }
+              //     return const Center(
+              //       child: Text("Loading....."),
+              //     );
+              //   },
+              // ),
+                  ]),
           ),
         ),
       ),
     );
   }
-
+  
+  ///For Animated Container.
   Future _show() async {
     await Future.delayed(const Duration(milliseconds: 500));
     return true;
@@ -1225,8 +1215,8 @@ class _UserListState extends State<UserList> {
         var nameController = TextEditingController();
         var emailController = TextEditingController();
         var mobileController = TextEditingController();
-        var addressController = TextEditingController();
-        var pinCodeController = TextEditingController();
+        // var addressController = TextEditingController();
+        // var pinCodeController = TextEditingController();
         final roleTypeController =TextEditingController();
 
         nameController.text=displayList['userName'];
@@ -1241,8 +1231,8 @@ class _UserListState extends State<UserList> {
         bool  invalidName = false;
         bool invalidEmail = false;
         bool invalidMobile = false;
-        bool invalidPin = false;
-        bool invalidAddress = false;
+        // bool invalidPin = false;
+        // bool invalidAddress = false;
         bool isRoleFocused=false;
         bool invalidGenderType=false;
 
@@ -1271,18 +1261,18 @@ class _UserListState extends State<UserList> {
           });
           return null;
         }
-        String? checkAddressError(String? value){
-          if(value == null || value.isEmpty){
-            setState(() {
-              invalidAddress = true;
-            });
-            return "Please Enter Address";
-          }
-          setState(() {
-            invalidAddress = false;
-          });
-          return null;
-        }
+        // String? checkAddressError(String? value){
+        //   if(value == null || value.isEmpty){
+        //     setState(() {
+        //       invalidAddress = true;
+        //     });
+        //     return "Please Enter Address";
+        //   }
+        //   setState(() {
+        //     invalidAddress = false;
+        //   });
+        //   return null;
+        // }
         String capitalizeFirstWord(String value){
           if(value.isNotEmpty){
             var result =value[0].toUpperCase();
@@ -1298,18 +1288,18 @@ class _UserListState extends State<UserList> {
           }
           return "";
         }
-        String? checkPinError(String? value){
-          if(value == null || value.isEmpty){
-            setState(() {
-              invalidPin = true;
-            });
-            return "Enter Pin";
-          }
-          setState(() {
-            invalidPin = false;
-          });
-          return null;
-        }
+        // String? checkPinError(String? value){
+        //   if(value == null || value.isEmpty){
+        //     setState(() {
+        //       invalidPin = true;
+        //     });
+        //     return "Enter Pin";
+        //   }
+        //   setState(() {
+        //     invalidPin = false;
+        //   });
+        //   return null;
+        // }
         customPopupDecoration({required String hintText, bool? error, bool? isFocused}) {
           return InputDecoration(
             hoverColor: mHoverColor,
@@ -1333,6 +1323,29 @@ class _UserListState extends State<UserList> {
         }
 
         final editDetails = GlobalKey<FormState>();
+
+        // Future<void> checkCredentials(String email,String password) async {
+        //   try {
+        //     UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        //       email: email,
+        //       password: password,
+        //     );
+        //     // If sign-in is successful, delete the user account
+        //     await userCredential.user!.updateEmail(emailController.text);
+        //     print('------email-------');
+        //     print(emailController.text);
+        //   } on FirebaseAuthException catch (e) {
+        //     String errorMessage = "An error occurred. Please try again";
+        //     if (e.code == 'user-not-found') {
+        //       errorMessage = "Please enter valid Email";
+        //       print('No user found for that email.');
+        //     } else if (e.code == 'wrong-password') {
+        //       errorMessage = "Wrong password. Try again or click Forgot password to reset it";
+        //       print('Wrong password provided for that user.');
+        //     }
+        //     showErrorDialog(errorMessage);
+        //   }
+        // }
 
         return Dialog(
           backgroundColor: Colors.transparent,
@@ -1646,8 +1659,6 @@ class _UserListState extends State<UserList> {
                                         textColor: mSaveButton,
                                         borderColor: mSaveButton,
                                         onTap: (){
-                                          print('-------displayList---');
-                                          print(displayList.id);
                                           if(editDetails.currentState!.validate()){
                                             Map customerDetails = {
                                               'userName':nameController.text,
@@ -1656,8 +1667,18 @@ class _UserListState extends State<UserList> {
                                               'role': roleTypeController.text,
                                               "userUid":displayList['userUid']
                                             };
-                                            updateDocument(customerDetails);
-                                            //Navigator.of(context).pop();
+                                            Navigator.of(context).pop();
+                                            //First Checking Respected Credential Presented Or Not.
+                                            // if there available Updating email.
+
+
+                                            // checkCredentials(displayList['email'],displayList['password']).whenComplete(() {
+                                            //   setState((){
+                                            //     //For Updating In Fire store Database.
+                                            //     updateDocument(customerDetails);
+                                            //   });
+                                            // });
+
                                           }
                                         }, text: 'Save',
                                       ),
@@ -1709,7 +1730,7 @@ class _UserListState extends State<UserList> {
   }
 
   // DeletePopUp.
-  deletePopUp(BuildContext context,int removeMap){
+  deletePopUp(BuildContext context, DocumentSnapshot documentSnapshot){
     return  showDialog(
       context: context,
       builder: (context) {
@@ -1762,12 +1783,18 @@ class _UserListState extends State<UserList> {
                                 textColor: Colors.white,
                                 borderColor: Colors.red,
                                 onTap:(){
-                                 setState((){
-                                 //displayList.removeWhere((element) => element['id']==);
-                                 });
+                                  // print('----userid----');
+                                  // print(documentSnapshot['userid']);
+
+                                   //Deleting From Firebase Authentication.
+                                  checkCredentialsForDelete(documentSnapshot['email'],documentSnapshot['password']);
+                                  //Deleting From FireStore Database.
+                                  deleteFromFireStoreDataBase(documentSnapshot["userUid"]);
+                                  //Deleting From AWS Database.
+                                  deleteCustomerData(documentSnapshot['userid']);
+
 
                                     Navigator.of(context).pop();
-
                                   //deleteUserData(removeMap);
                                 },
                               ),
@@ -1927,58 +1954,58 @@ class _UserListState extends State<UserList> {
     );
   }
  // Upload User async Function.
-  Future _loadCSVorXlSX() async {
-    // Wait Key Word ,For Selecting Type Of Files.(File type picking "csv" or "xlsx")
-    final result = await FilePicker.platform.pickFiles(
-        type: FileType.custom,
-        allowedExtensions: ["xlsx",],
-        allowMultiple: true
-    );
-    final typeOfFile =result?.files.single.name;
-    try{
-      if(result==null || result.files.isEmpty){
-        setState(() {
-          // displayData=[];
-          // newData=[];
-        });
-        return null;
-      }
-      else if(typeOfFile!.endsWith(".xlsx")){
-        var bytes = result.files.single.bytes;
-        if(bytes!=null){
-          var excel = xl.Excel.decodeBytes(bytes);
-          //newData=[];
-          for (var table in excel.tables.keys) {
-            for(int i=1;i<excel.tables[table]!.rows.length;i++){
-              // print('-----check here---');
-              // print(excel.tables[table]!.rows[i][0]!.props.first.toString());
-              Map storeStaticUsers = {
-                'id': excel.tables[table]!.rows[i][0]!.props.first.toString(),
-                'name': excel.tables[table]!.rows[i][1]!.props.first.toString(),
-                'email': excel.tables[table]!.rows[i][2]!.props.first.toString(),
-                'phone': excel.tables[table]!.rows[i][3]!.props.first.toString(),
-                'address': excel.tables[table]!.rows[i][4]!.props.first.toString(),
-                'gender': excel.tables[table]!.rows[i][5]!.props.first.toString(),
-                'pincode': excel.tables[table]!.rows[i][6]!.props.first.toString(),
-              };
-              setState(() {
-                filteredList.add(storeStaticUsers);
-              });
-              // print('----------check this----');
-              // print(usersStaticData.length);
-            }
-          }
-
-        }
-      }
-      else{
-        log('Unsupported file');
-      }
-    }
-    catch(e){
-      log(e.toString());
-    }
-  }
+ //  Future _loadCSVorXlSX() async {
+ //    // Wait Key Word ,For Selecting Type Of Files.(File type picking "csv" or "xlsx")
+ //    final result = await FilePicker.platform.pickFiles(
+ //        type: FileType.custom,
+ //        allowedExtensions: ["xlsx",],
+ //        allowMultiple: true
+ //    );
+ //    final typeOfFile =result?.files.single.name;
+ //    try{
+ //      if(result==null || result.files.isEmpty){
+ //        setState(() {
+ //          // displayData=[];
+ //          // newData=[];
+ //        });
+ //        return null;
+ //      }
+ //      else if(typeOfFile!.endsWith(".xlsx")){
+ //        var bytes = result.files.single.bytes;
+ //        if(bytes!=null){
+ //          var excel = xl.Excel.decodeBytes(bytes);
+ //          //newData=[];
+ //          for (var table in excel.tables.keys) {
+ //            for(int i=1;i<excel.tables[table]!.rows.length;i++){
+ //              // print('-----check here---');
+ //              // print(excel.tables[table]!.rows[i][0]!.props.first.toString());
+ //              Map storeStaticUsers = {
+ //                'id': excel.tables[table]!.rows[i][0]!.props.first.toString(),
+ //                'name': excel.tables[table]!.rows[i][1]!.props.first.toString(),
+ //                'email': excel.tables[table]!.rows[i][2]!.props.first.toString(),
+ //                'phone': excel.tables[table]!.rows[i][3]!.props.first.toString(),
+ //                'address': excel.tables[table]!.rows[i][4]!.props.first.toString(),
+ //                'gender': excel.tables[table]!.rows[i][5]!.props.first.toString(),
+ //                'pincode': excel.tables[table]!.rows[i][6]!.props.first.toString(),
+ //              };
+ //              setState(() {
+ //                filteredList.add(storeStaticUsers);
+ //              });
+ //              // print('----------check this----');
+ //              // print(usersStaticData.length);
+ //            }
+ //          }
+ //
+ //        }
+ //      }
+ //      else{
+ //        log('Unsupported file');
+ //      }
+ //    }
+ //    catch(e){
+ //      log(e.toString());
+ //    }
+ //  }
 
   ///Cloud Firestore and Firebase email Update.
   void updateDocument(Map displayList) async {
@@ -2006,4 +2033,76 @@ class _UserListState extends State<UserList> {
     }
   }
 
+  /// This Function is Login with existing user account.
+  Future<void> checkCredentialsForDelete(String email,String password) async {
+    try {
+      UserCredential userCredential = await FirebaseAuth.instance.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+      // If sign-in is successful, delete the user account.
+      await userCredential.user!.delete();
+    }
+    catch(e){
+      print("------Exception------");
+      print(e);
+
+    }
+
+    // on FirebaseAuthException catch (e) {
+    //   String errorMessage = "An error occurred. Please try again";
+    //   if (e.code == 'user-not-found') {
+    //     errorMessage = "Please enter valid Email";
+    //     print('No user found for that email.');
+    //   } else if (e.code == 'wrong-password') {
+    //     errorMessage = "Wrong password. Try again or click Forgot password to reset it";
+    //     print('Wrong password provided for that user.');
+    //   }
+    //   showErrorDialog(errorMessage);
+    // }
+  }
+
+  /// This Function is Deleting From FireStore Database.
+  Future<void> deleteFromFireStoreDataBase(userUID)async{
+
+    // Reference to the document you want to delete
+    DocumentReference docRef = FirebaseFirestore.instance.collection('users').doc(userUID);
+    try{
+      docRef.delete();
+    }
+    catch(e){
+      print('------Exception----');
+      print(e);
+    }
+  }
+
+  ///This async Function Is Deleting In AWS Database.
+  deleteCustomerData(String userID, )async{
+    String deleteUrl="https://snvvlfyg7f.execute-api.ap-south-1.amazonaws.com/stage1/api/user_master/delete-user/$userID";
+    final response = await http.delete(Uri.parse(deleteUrl),);
+    dynamic responseBody= jsonDecode(response.body);
+    if(response.statusCode ==200){
+      try{
+        if(responseBody['status']=="success"){
+          if(mounted){
+
+            ScaffoldMessenger.of(context).showSnackBar( SnackBar(content: Text("Deleted User ID:$userID"),duration: const Duration(seconds: 5),));
+          }
+        }
+        else if(responseBody['status']=="error"){
+          if(mounted){
+            ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text("Something Went Wrong Please Check !!!"),duration: Duration(seconds: 5),));
+          }
+        }
+
+      }
+      catch(e){
+        log('--------Exception---------');
+        log(e.toString());
+      }
+    }
+
+  }
 }
+
+

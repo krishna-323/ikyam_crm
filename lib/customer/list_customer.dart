@@ -46,8 +46,8 @@ class _CustomerListState extends State<CustomerList> {
     try {
       List<dynamic> tempStoreData = await fetchGetApiData(url);
       setState(() {
-        // responseData = tempStoreData;
-        // filteredList = tempStoreData;
+         responseData = tempStoreData;
+         filteredList = tempStoreData;
 
 
         if (displayList.isEmpty) {
@@ -632,6 +632,7 @@ class _CustomerListState extends State<CustomerList> {
                 shrinkWrap: true,
                 itemCount:displayList.length + 1,
                 itemBuilder: (context, i) {
+                  int endVal = startVal + 14 > filteredList.length ? filteredList.length : startVal + 14;
                   if(i<displayList.length){
                     return Column(children: [
                      MaterialButton(
@@ -669,7 +670,7 @@ class _CustomerListState extends State<CustomerList> {
                                       height: 25,
                                       //   decoration: state.text.isNotEmpty ?BoxDecoration():BoxDecoration(boxShadow: [BoxShadow(color:Color(0xFFEEEEEE),blurRadius: 2)]),
                                       child:
-                                      Tooltip(message:displayList[i]['email']?? '',waitDuration:const Duration(seconds: 1),
+                                      Tooltip(message:displayList[i]['email']?? '',waitDuration:const Duration(milliseconds: 500),
                                           child: Text(displayList[i]['email']?? '',softWrap: true,)),
                                     ),
                                   )
@@ -777,7 +778,13 @@ class _CustomerListState extends State<CustomerList> {
                       Row(mainAxisAlignment: MainAxisAlignment.end,
                         children: [
 
-                          Text("${startVal+15>filteredList.length?filteredList.length:startVal+1}-${startVal+15>filteredList.length?filteredList.length:startVal+15} of ${filteredList.length}",style: const TextStyle(color: Colors.grey)),
+
+                        Text(
+                        "${startVal + 1}-$endVal of ${filteredList.length}",
+                        style: const TextStyle(color: Colors.grey),
+                      ),
+
+                          //Text("${startVal+15>filteredList.length?filteredList.length:startVal+1}-${startVal+15>filteredList.length?filteredList.length:startVal+15} of ${filteredList.length}",style: const TextStyle(color: Colors.grey)),
                           const SizedBox(width: 10,),
                           Material(color: Colors.transparent,
                             child: InkWell(

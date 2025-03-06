@@ -20,6 +20,13 @@ class ListOrderArgs{
   // constructor.
   ListOrderArgs({required this.drawerWidth, required this.selectedDestination});
 }
+class QuotationOrderArgs{
+  final double drawerWidth;
+  final double selectedDestination;
+
+  // constructor.
+  QuotationOrderArgs({required this.drawerWidth, required this.selectedDestination});
+}
 
 // Master Orders.
 class MasterListArgs{

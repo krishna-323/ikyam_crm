@@ -1,11 +1,14 @@
+import 'dart:convert';
 import 'dart:js_interop';
-
+import 'package:http/http.dart' as http;
 import 'package:adaptive_scrollbar/adaptive_scrollbar.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:email_validator/email_validator.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:ikyam_crm/users/users_list.dart';
+import '../class/arguments_class/argument_class.dart';
 import '../dashboard/home_screen.dart';
 import '../utils/customAppBar.dart';
 import '../utils/custom_drawer.dart';
@@ -36,7 +39,7 @@ class _UserCreationState extends State<UserCreation> {
 
 
   final roleTypeController=TextEditingController();
-  List<String> roleType=["User","Admin"];
+  List<String> roleType=["Manager","Employee"];
   String selectedType='Select Type';
   bool  _invalidName = false;
   bool _invalidEmail = false;
@@ -152,7 +155,87 @@ class _UserCreationState extends State<UserCreation> {
   }
 
   final _horizontalScrollController = ScrollController();
+  ///Aws Post Api Call.
+  awsPostApi(Map requestBody, Map<dynamic, dynamic> storingInFireStore)async{
 
+    String url ="https://snvvlfyg7f.execute-api.ap-south-1.amazonaws.com/stage1/api/user_master/add-usermaster";
+
+
+    final resData = await http.post(Uri.parse(url),
+
+        //Telling that we are storing json format.
+        headers: {
+          "Content-Type":"application/json",
+        },
+        //Dart Object To Json Object.
+        body: jsonEncode(requestBody));
+
+    final responseBody = jsonDecode(resData.body);
+
+    try{
+      if(responseBody.containsKey('error')){
+        if(mounted){
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return  AlertDialog(
+                title: const Text('Error'),
+                content: const SelectableText('Somthing went wrong!!!!!!!!!!'),
+                actions: <Widget>[
+                  TextButton(
+                    onPressed: () {
+                      Navigator.of(context).pop();
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      }
+      else{
+        if(mounted){
+
+          showDialog(
+            context: context,
+            builder: (BuildContext context) {
+              return AlertDialog(
+                title: const Text('Success'),
+                content: SelectableText('User ID ${responseBody['id']} is Created'),
+                actions: <Widget>[
+
+                  TextButton(
+                    onPressed: () async{
+                      storingInFireStore['userid']=responseBody['id'];
+
+                      // print('-----check printing ----');
+                      // print(storingInFireStore);
+                      await registerWithEmailAndPassword(storingInFireStore);
+
+                      Navigator.of(context).pushReplacement(PageRouteBuilder(pageBuilder: (context, animation, secondaryAnimation) =>
+                          UserList(args: UsersListArgs(
+                              drawerWidth: widget.drawerWidth,
+                              selectedDestination: widget.selectedDestination),),));
+
+                    },
+                    child: const Text('OK'),
+                  ),
+                ],
+              );
+            },
+          );
+        }
+      }
+      return jsonDecode(resData.body);
+    }
+    catch(e){
+      print('--------Error------');
+      print(e);
+    }
+
+
+  }
   @override
   Widget build(BuildContext context) {
     double screenWidth=MediaQuery.of(context).size.width;
@@ -194,18 +277,29 @@ class _UserCreationState extends State<UserCreation> {
                         child: OutlinedMButton(
                           textColor: mSaveButton,
                           borderColor: mSaveButton,
-                          onTap: ()async{
+                          onTap: (){
                             if(_formKey.currentState!.validate()){
                               if(passwordController.text == confirmPasswordController.text){
-                                Map newUser={
-                                  "userName": nameController.text,
+                                Map storingInFireStore ={
+                                  "active": true,
                                   "email":emailController.text,
                                   "password": passwordController.text,
-                                  "active": true,
                                   "role": roleTypeController.text,
-                                  "phone":phoneController.text
+                                  "phone":phoneController.text,
+                                  "userName": nameController.text,
+                                  "userid":""
                                 };
-                                await registerWithEmailAndPassword(newUser);
+                                Map postJsonForAws={
+                                    "active": true,
+                                    "email":nameController.text,
+                                    "password": passwordController.text,
+                                    "role": roleTypeController.text,
+                                    "token_creation_date": "",
+                                    "username": emailController.text
+                                };
+
+                                //post api call.
+                                awsPostApi(postJsonForAws,storingInFireStore);
                               }
                              else{
                                 showErrorDialogPasswordMatch("Password Doesn't Match,Please Check");
@@ -641,7 +735,10 @@ class _UserCreationState extends State<UserCreation> {
         password: newUser['password'],
       );
       /// This is a FireStore database Users are Adding.
-      if(userCredential.isDefinedAndNotNull){
+      if(userCredential.credential != null){
+        print('---userid--');
+        print(newUser['userid']);
+
         await usersCollection.doc(userCredential.user!.uid).set({
           "userName":newUser['userName'],
           "email": userCredential.user?.email,
@@ -649,9 +746,19 @@ class _UserCreationState extends State<UserCreation> {
           "userUid":userCredential.user!.uid,
           'role':newUser['role'],
           "phone":newUser['phone'],
-          "delete":false
+          "delete":false,
+          "userid":newUser['userid'],
         });
-        showErrorDialog("User Register Successfully.Try To Login");
+       // showErrorDialog("User Register Successfully.Try To Login");
+        if(mounted){
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('User Register Successfully.Try To Login'),
+              duration: Duration(seconds: 5),
+            ),
+          );
+        }
+
         return true;
         // Store user data in fire store
       }
@@ -680,7 +787,7 @@ class _UserCreationState extends State<UserCreation> {
         return AlertDialog(
           title: Column(
             children: [
-              const Icon(Icons.error,color: Colors.red,),
+              const Icon(Icons.supervised_user_circle_rounded,color: Colors.green,),
               Text(errorMessage,style: const TextStyle(fontSize: 14),),
               const SizedBox(height: 10,),
               MaterialButton(

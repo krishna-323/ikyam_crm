@@ -38,20 +38,20 @@ class _ViewCustomerDetailsState extends State<ViewCustomerDetails> {
 
  late AutoScrollController controller=AutoScrollController();
 
-
- List staticCustomerData=[];
+ List staticCustomerData= [];
+ List filteredList=[];
 
  String selectedId="";
 
   int scrollIndex=0;
 
-
+ // List filteredList=[];
   @override
   void initState() {
     // TODO: implement initState.
     // All Business Partner List.
     staticCustomerData = widget.customerList;
-
+    filteredList = staticCustomerData;
     // Displayed Item Data.
     storeStaticData = widget.displayData;
 
@@ -77,10 +77,10 @@ class _ViewCustomerDetailsState extends State<ViewCustomerDetails> {
    //    }
    //  }
     ///selected index displaying it in first place (aws).
-    for(int i=0;i<staticCustomerData.length;i++){
-      if(storeStaticData['customerDetailsId']==staticCustomerData[i]['customerDetailsId'] ){
-        staticCustomerData.removeAt(i);
-        staticCustomerData.insert(0, storeStaticData);
+    for(int i=0;i<filteredList.length;i++){
+      if(storeStaticData['customerDetailsId']==filteredList[i]['customerDetailsId'] ){
+        filteredList.removeAt(i);
+        filteredList.insert(0, storeStaticData);
       }
     }
 
@@ -1094,19 +1094,43 @@ class _ViewCustomerDetailsState extends State<ViewCustomerDetails> {
                 child: SizedBox(height: 30, child: TextFormField(
                   onChanged:(val){
                     if(val.trim().isEmpty || val==""){
-                      for(int i=0;i<staticCustomerData.length;i++){
-                        if(selectedId==staticCustomerData[i]['customerDetailsId']){
-                          scrollToName(i);
-                        }
-                      }
+                      setState(() {
+                        filteredList = staticCustomerData;
+                      });
+
+                      // for(int i=0;i<filteredList.length;i++){
+                      //   if(selectedId==filteredList[i]['customerDetailsId']){
+                      //     scrollToName(i);
+                      //   }
+                      // }
                     }
                     else{
-                      for(int i=0;i<staticCustomerData.length;i++){
-                        String textLength = staticCustomerData[i]['customerDetailsId']??"";
+                      for(int i=0;i<filteredList.length;i++){
+                        String textLength = filteredList[i]['customerDetailsId']??"";
                         try{
-                          if(textLength==val){
-                            scrollToName(i);
-                          }
+                          setState(() {
+                            if(textLength==val){
+                              for(int i=0;i<staticCustomerData.length;i++){
+                                if(textLength==staticCustomerData[i]["customerDetailsId"]){
+                                  filteredList=[];
+                                  filteredList.add({
+                                    "customerDetailsId":staticCustomerData[i]["customerDetailsId"],
+                                    "customerName":staticCustomerData[i]['customerName'],
+                                    "email":staticCustomerData[i]['email'],
+                                    "pan":staticCustomerData[i]['pan'],
+                                    "mobileNumber":staticCustomerData[i]['mobileNumber'],
+                                    "projectValue":staticCustomerData[i]['projectValue'],
+                                    "streetAddress":staticCustomerData[i]['streetAddress'],
+                                    "pinCode":staticCustomerData[i]['pinCode'],
+                                    "state":staticCustomerData[i]['state'],
+                                    "district":staticCustomerData[i]['district']
+                                  });
+                                }
+                              }
+                              scrollToName(i);
+                            }
+                          });
+
                         }
                         catch(e){
                           log(e.toString());
@@ -1116,7 +1140,7 @@ class _ViewCustomerDetailsState extends State<ViewCustomerDetails> {
                   },
                   style: const TextStyle(fontSize: 14),
                   keyboardType: TextInputType.text,
-                  decoration:decorationSearch('Search Customer'),  ),),
+                  decoration:decorationSearch('Search Customer ID'),  ),),
               ),
             ],
           ),
@@ -1126,7 +1150,7 @@ class _ViewCustomerDetailsState extends State<ViewCustomerDetails> {
             child: ListView.builder(
               shrinkWrap: true,
               controller: controller,
-              itemCount: staticCustomerData.length,
+              itemCount: filteredList.length,
               itemBuilder: (BuildContext context, int index) {
                 return AutoScrollTag(
                   key: ValueKey(index),
@@ -1135,7 +1159,7 @@ class _ViewCustomerDetailsState extends State<ViewCustomerDetails> {
                   child:   Column(
                     children: [
                       Container(
-                        color:storeStaticData['customerDetailsId'] == staticCustomerData[index]['customerDetailsId'] ? Colors.blue[100] : Colors.transparent,
+                        color:storeStaticData['customerDetailsId'] == filteredList[index]['customerDetailsId'] ? Colors.blue[100] : Colors.transparent,
                         child: InkWell(
                           hoverColor: mHoverColor,
                           child: Padding(
@@ -1147,13 +1171,13 @@ class _ViewCustomerDetailsState extends State<ViewCustomerDetails> {
                                   children: [
                                     SizedBox(
                                       width:180,
-                                      child: Text(staticCustomerData[index]['customerName']??"",
+                                      child: Text(filteredList[index]['customerName']??"",
                                         style: const TextStyle(fontWeight: FontWeight.bold),
                                         maxLines: 2,
                                         overflow: TextOverflow.ellipsis,
                                       ),
                                     ),
-                                    Text(staticCustomerData[index]['customerDetailsId']??""),
+                                    Text(filteredList[index]['customerDetailsId']??""),
                                     const SizedBox(height: 2,),
                                     // Text(customerList[index]['mobile'],),
                                   ],
@@ -1165,17 +1189,17 @@ class _ViewCustomerDetailsState extends State<ViewCustomerDetails> {
                             //selectedId = customerList[index]["customer_id"];
                             setState(() {
                               storeStaticData={
-                                "customerDetailsId": staticCustomerData[index]["customerDetailsId"],
-                                "customerName": staticCustomerData[index]["customerName"],
-                                "email": staticCustomerData[index]["email"],
-                                "pan":staticCustomerData[index]["pan"],
-                                "mobileNumber": staticCustomerData[index]["mobileNumber"],
-                                "projectValue": staticCustomerData[index]["projectValue"],
-                                "selectStage": staticCustomerData[index]["selectStage"],
-                                "streetAddress": staticCustomerData[index]["streetAddress"],
-                                "pinCode": staticCustomerData[index]["pinCode"],
-                                "state": staticCustomerData[index]["state"],
-                                "district": staticCustomerData[index]["district"]
+                                "customerDetailsId": filteredList[index]["customerDetailsId"],
+                                "customerName": filteredList[index]["customerName"],
+                                "email": filteredList[index]["email"],
+                                "pan":filteredList[index]["pan"],
+                                "mobileNumber": filteredList[index]["mobileNumber"],
+                                "projectValue": filteredList[index]["projectValue"],
+                                "selectStage": filteredList[index]["selectStage"],
+                                "streetAddress": filteredList[index]["streetAddress"],
+                                "pinCode": filteredList[index]["pinCode"],
+                                "state": filteredList[index]["state"],
+                                "district": filteredList[index]["district"]
                               };
                             });
 

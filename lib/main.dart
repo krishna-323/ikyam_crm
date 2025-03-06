@@ -10,6 +10,7 @@ import 'firebase_options.dart';
 import 'login_screen.dart';
 import 'master/master_list.dart';
 import 'order/order_list.dart';
+import 'order/quotation_creation/quotation_list.dart';
 
 Future<void> main()async{
   WidgetsFlutterBinding.ensureInitialized();
@@ -32,7 +33,7 @@ class _MyAppState extends State<MyApp> {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      title: 'Customer Registration',
+      title: 'Ikyam-Crm',
       initialRoute: "/",
       onGenerateRoute: (RouteSettings settings){
       Widget newScreen;
@@ -60,7 +61,7 @@ class _MyAppState extends State<MyApp> {
           customerStatus= settings.arguments as CustomerStatusArgs;
         }
         else{
-          customerStatus = CustomerStatusArgs(drawerWidth: 190, selectedDestination:1);
+          customerStatus = CustomerStatusArgs(drawerWidth: 190, selectedDestination:1.2);
         }
         newScreen = CustomerStatus(args:customerStatus ,);
         break;
@@ -76,6 +77,19 @@ class _MyAppState extends State<MyApp> {
         }
           newScreen = OrderList(args:orderList);
         break;
+
+        //Quotation List.
+        case CustomerRotes.quotationList:
+          QuotationOrderArgs quotation;
+          if(settings.arguments!=null){
+            quotation= settings.arguments as QuotationOrderArgs;
+          }
+          else{
+            quotation = QuotationOrderArgs(drawerWidth: 190, selectedDestination: 2.2);
+          }
+          newScreen = QuotationList(args:quotation);
+          break;
+
           //case 3.
         case CustomerRotes.masterList:
           MasterListArgs masterList;
@@ -87,6 +101,7 @@ class _MyAppState extends State<MyApp> {
           }
           newScreen= MasterList(args:masterList);
           break;
+
           //Case 4.
         case CustomerRotes.usersList:
           UsersListArgs userList;
